@@ -19,6 +19,7 @@ HEADERS = {
     "Accept": "*/*",
 }
 URL = "https://www.linkedin.com"
+URL_LOGIN = "https://www.linkedin.com/login?fromSignIn=true&trk=guest_homepage-basic_nav-header-signin"
 FILE_TYPE_VIDEO = ".mp4"
 FILE_TYPE_SUBTITLE = ".srt"
 COOKIE_JAR = aiohttp.cookiejar.CookieJar()
@@ -74,7 +75,7 @@ def chapter_dir(course: Course, chapter: Chapter):
 async def login(username, password):
     async with aiohttp.ClientSession(headers=HEADERS, cookie_jar=COOKIE_JAR) as session:
         logging.info("[*] Login step 1 - Getting CSRF token...")
-        resp = await session.get(URL, proxy=PROXY)
+        resp = await session.get(URL_LOGIN, proxy=PROXY)
         body = await resp.text()
 
         # Looking for CSRF Token
@@ -89,7 +90,7 @@ async def login(username, password):
         }
         logging.info("[*] Login step 1 - Done")
         logging.info("[*] Login step 2 - Logging In...")
-        await session.post(urljoin(URL, 'uas/login-submit'), proxy=PROXY, data=data)
+        await session.post(urljoin(URL_LOGIN, 'uas/login-submit'), proxy=PROXY, data=data)
 
         if not next((x.value for x in session.cookie_jar if x.key.lower() == 'li_at'), False):
             raise RuntimeError("[!] Could not login. Please check your credentials")
